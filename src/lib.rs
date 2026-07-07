@@ -1,6 +1,7 @@
 pub mod cli;
 pub mod config;
 pub mod error;
+pub mod server;
 pub mod webos;
 pub mod wol;
 

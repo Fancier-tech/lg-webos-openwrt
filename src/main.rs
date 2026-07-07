@@ -1,7 +1,7 @@
 use clap::Parser;
 use lgtvctl::{
     cli::{Cli, Command, MuteState, VolumeAction},
-    webos::WebOsClient,
+    server, webos::WebOsClient,
     wol, Config, LgtvctlError, Result,
 };
 use serde_json::Value;
@@ -15,7 +15,7 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let cli_config_path = cli.config.clone();
     let mut config = Config::load(cli.config.as_deref())?;
-    config.apply_overrides(cli.host, cli.port, cli.mac, cli.wol_broadcast);
+    config.apply_overrides(cli.host, cli.port, cli.mac, cli.wol_broadcast, cli.listen);
 
     debug!(?config, "configuration loaded");
 
@@ -44,6 +44,7 @@ async fn run(command: Command, config: Config, cli_config_path: Option<PathBuf>)
         Command::Hdmi { .. } => not_implemented("hdmi"),
         Command::App { .. } => not_implemented("app"),
         Command::Key { .. } => not_implemented("key"),
+        Command::Serve => server::serve(config).await,
     }
 }
 
@@ -53,6 +54,9 @@ fn print_dry_run(command: &Command, config: &Config) -> Result<()> {
             let mac = config.mac.as_deref().unwrap_or("<not set>");
             let broadcast = config.wol_broadcast.as_deref().unwrap_or("255.255.255.255");
             println!("dry-run: mac={mac} wol_broadcast={broadcast} command=on");
+        }
+        Command::Serve => {
+            println!("dry-run: listen={} command=serve", config.http_listen);
         }
         _ => {
             let host = config.require_host()?;
@@ -85,6 +89,7 @@ fn print_config(config: &Config) {
         "wol_broadcast = {}",
         config.wol_broadcast.as_deref().unwrap_or("<not set>")
     );
+    println!("http_listen = {}", config.http_listen);
 }
 
 fn command_name(command: &Command) -> String {
@@ -108,6 +113,7 @@ fn command_name(command: &Command) -> String {
         Command::Hdmi { number } => format!("hdmi {number}"),
         Command::App { name } => format!("app {name}"),
         Command::Key { key } => format!("key {key}"),
+        Command::Serve => "serve".to_string(),
     }
 }
 

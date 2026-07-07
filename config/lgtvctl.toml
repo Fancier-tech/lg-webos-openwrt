@@ -23,3 +23,7 @@ mac = ""
 # Optional. For a 192.168.0.0/24 network this is normally 192.168.0.255.
 # Leave empty to use 255.255.255.255:9.
 wol_broadcast = ""
+
+# HTTP API bind address for `lgtvctl serve`.
+# Keep 127.0.0.1 on a PC. On OpenWrt use 0.0.0.0 only inside a trusted LAN.
+http_listen = "127.0.0.1:8765"

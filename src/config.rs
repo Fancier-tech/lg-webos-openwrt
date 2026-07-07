@@ -9,6 +9,7 @@ use std::{
 const DEFAULT_PORT: u16 = 3001;
 const DEFAULT_TIMEOUT_MS: u64 = 3000;
 const DEFAULT_PAIR_TIMEOUT_MS: u64 = 60000;
+const DEFAULT_HTTP_LISTEN: &str = "127.0.0.1:8765";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -43,6 +44,10 @@ pub struct Config {
     /// Optional broadcast address for Wake-on-LAN, e.g. 192.168.0.255.
     #[serde(default)]
     pub wol_broadcast: Option<String>,
+
+    /// Local HTTP API bind address for service mode.
+    #[serde(default = "default_http_listen")]
+    pub http_listen: String,
 }
 
 impl Default for Config {
@@ -56,6 +61,7 @@ impl Default for Config {
             pair_timeout_ms: DEFAULT_PAIR_TIMEOUT_MS,
             mac: None,
             wol_broadcast: None,
+            http_listen: DEFAULT_HTTP_LISTEN.to_string(),
         }
     }
 }
@@ -80,6 +86,7 @@ impl Config {
         port: Option<u16>,
         mac: Option<String>,
         wol_broadcast: Option<String>,
+        http_listen: Option<String>,
     ) {
         if let Some(host) = host {
             self.host = Some(host);
@@ -92,6 +99,9 @@ impl Config {
         }
         if let Some(wol_broadcast) = wol_broadcast {
             self.wol_broadcast = Some(wol_broadcast);
+        }
+        if let Some(http_listen) = http_listen {
+            self.http_listen = http_listen;
         }
     }
 
@@ -154,6 +164,10 @@ fn default_timeout_ms() -> u64 {
 
 fn default_pair_timeout_ms() -> u64 {
     DEFAULT_PAIR_TIMEOUT_MS
+}
+
+fn default_http_listen() -> String {
+    DEFAULT_HTTP_LISTEN.to_string()
 }
 
 fn default_config_path() -> Option<PathBuf> {

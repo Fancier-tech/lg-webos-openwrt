@@ -256,7 +256,7 @@ impl WebOsConnection {
 fn webos_manifest() -> Value {
     json!({
         "manifestVersion": 1,
-        "appVersion": "0.4.0",
+        "appVersion": "0.5.0",
         "appId": "com.fanciertech.lgtvctl",
         "vendorId": "com.fanciertech",
         "permissions": [

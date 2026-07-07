@@ -26,6 +26,10 @@ pub struct Cli {
     #[arg(long, env = "LGTVCTL_WOL_BROADCAST")]
     pub wol_broadcast: Option<String>,
 
+    /// HTTP API bind address for `serve`, e.g. 127.0.0.1:8765 or 0.0.0.0:8765.
+    #[arg(long, env = "LGTVCTL_HTTP_LISTEN")]
+    pub listen: Option<String>,
+
     /// Print what would be executed without connecting to TV.
     #[arg(long)]
     pub dry_run: bool,
@@ -65,6 +69,9 @@ pub enum Command {
 
     /// Send remote-control button/key, e.g. HOME, BACK, UP, DOWN, ENTER. Implemented in a later stage.
     Key { key: String },
+
+    /// Run local HTTP API service for Alice/OpenWrt automations.
+    Serve,
 
     /// Print resolved configuration without sensitive values.
     Config,
