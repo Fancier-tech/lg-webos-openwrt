@@ -1,5 +1,5 @@
 use clap::Parser;
-use lgtvctl::{cli::{Cli, Command, MuteState, VolumeAction}, Config, LgtvctlError, Result};
+use lgtvctl::{cli::{Cli, Command, MuteState, VolumeAction}, webos::WebOsClient, Config, LgtvctlError, Result};
 use tracing::{debug, info};
 
 #[tokio::main]
@@ -30,6 +30,7 @@ async fn run(command: Command, config: Config) -> Result<()> {
         Command::Pair => not_implemented("pair"),
         Command::On => not_implemented("on"),
         Command::Off => not_implemented("off"),
+        Command::Probe => probe(config).await,
         Command::Status => not_implemented("status"),
         Command::Volume(_) => not_implemented("volume"),
         Command::Mute(_) => not_implemented("mute"),
@@ -60,6 +61,7 @@ fn command_name(command: &Command) -> String {
         Command::Pair => "pair".to_string(),
         Command::On => "on".to_string(),
         Command::Off => "off".to_string(),
+        Command::Probe => "probe".to_string(),
         Command::Status => "status".to_string(),
         Command::Config => "config".to_string(),
         Command::Volume(args) => match &args.action {
@@ -76,6 +78,17 @@ fn command_name(command: &Command) -> String {
         Command::App { name } => format!("app {name}"),
         Command::Key { key } => format!("key {key}"),
     }
+}
+
+async fn probe(config: Config) -> Result<()> {
+    let result = WebOsClient::new(config).probe().await?;
+    println!(
+        "connected: {} http_status={} {}",
+        result.url,
+        result.http_status.as_u16(),
+        result.http_status.canonical_reason().unwrap_or("")
+    );
+    Ok(())
 }
 
 fn not_implemented(command: &'static str) -> Result<()> {

@@ -21,6 +21,15 @@ pub enum LgtvctlError {
     #[error("TV host is not configured. Use --host or set host in config file")]
     MissingHost,
 
-    #[error("command is not implemented yet in stage 1: {0}")]
+    #[error("operation timed out: {operation} after {timeout_ms} ms")]
+    Timeout {
+        operation: &'static str,
+        timeout_ms: u64,
+    },
+
+    #[error("WebSocket/TLS error: {0}")]
+    WebSocket(#[from] tokio_tungstenite::tungstenite::Error),
+
+    #[error("command is not implemented yet in stage 2: {0}")]
     NotImplemented(&'static str),
 }

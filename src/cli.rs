@@ -37,6 +37,9 @@ pub enum Command {
     /// Turn TV off.
     Off,
 
+    /// Open WSS connection to TV and close it. Useful before pairing.
+    Probe,
+
     /// Read basic TV status.
     Status,
 
