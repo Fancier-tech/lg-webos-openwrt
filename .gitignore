@@ -7,3 +7,7 @@
 .env
 /config/local.toml
 /lgtvctl.toml
+
+lgtvctl.toml
+
+*.local.toml
