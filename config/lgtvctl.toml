@@ -1,0 +1,20 @@
+# Copy this file to ./lgtvctl.toml or /etc/lgtvctl.toml and edit values.
+
+# LG G5 IP address in your local network.
+host = "192.168.0.116"
+
+# LG webOS secure WebSocket port. Usually 3001.
+port = 3001
+
+# Empty until `lgtvctl pair` is implemented and executed.
+client_key = ""
+
+# LG TVs can have certificates that are inconvenient on embedded systems.
+# Stage 2 will use this flag when WSS transport is implemented.
+verify_certificate = false
+
+timeout_ms = 3000
+
+# Optional, needed later for `lgtvctl on` via Wake-on-LAN.
+# mac = "AA:BB:CC:DD:EE:FF"
+# wol_broadcast = "192.168.0.255"

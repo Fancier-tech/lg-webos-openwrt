@@ -1,0 +1,36 @@
+[package]
+name = "lgtvctl"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+authors = ["Dima Uwar"]
+description = "CLI controller for LG webOS TVs, designed for Linux/OpenWrt and smart-home automation."
+license = "MIT"
+repository = ""
+readme = "README.md"
+keywords = ["lg", "webos", "tv", "openwrt", "smart-home"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+clap = { version = "4", features = ["derive", "env"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+thiserror = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Stage 2 dependencies will be enabled when WebSocket transport is added:
+# tokio-tungstenite = { version = "0.26", default-features = false, features = ["rustls-tls-webpki-roots"] }
+# futures-util = "0.3"
+# url = "2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"

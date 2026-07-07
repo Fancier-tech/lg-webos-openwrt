@@ -1,0 +1,86 @@
+use clap::{Args, Parser, Subcommand, ValueEnum};
+use std::path::PathBuf;
+
+#[derive(Debug, Parser)]
+#[command(name = "lgtvctl")]
+#[command(version, about = "Control LG webOS TV from CLI/OpenWrt")]
+pub struct Cli {
+    /// Path to config file. If omitted, lgtvctl checks LGTVCTL_CONFIG, ./lgtvctl.toml,
+    /// ./config/lgtvctl.toml and /etc/lgtvctl.toml.
+    #[arg(short, long, env = "LGTVCTL_CONFIG")]
+    pub config: Option<PathBuf>,
+
+    /// TV host/IP override.
+    #[arg(long, env = "LGTVCTL_HOST")]
+    pub host: Option<String>,
+
+    /// TV WebSocket port override. LG webOS secure port is usually 3001.
+    #[arg(long, env = "LGTVCTL_PORT")]
+    pub port: Option<u16>,
+
+    /// Print what would be executed without connecting to TV.
+    #[arg(long)]
+    pub dry_run: bool,
+
+    #[command(subcommand)]
+    pub command: Command,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum Command {
+    /// Pair this client with the TV and save a client key.
+    Pair,
+
+    /// Wake TV using Wake-on-LAN. Stage 4/5 will implement actual WOL packet sending.
+    On,
+
+    /// Turn TV off.
+    Off,
+
+    /// Read basic TV status.
+    Status,
+
+    /// Change volume.
+    Volume(VolumeArgs),
+
+    /// Toggle or set mute.
+    Mute(MuteArgs),
+
+    /// Switch to HDMI input number.
+    Hdmi { number: u8 },
+
+    /// Launch app by common alias or app id, e.g. youtube, kodi, netflix.
+    App { name: String },
+
+    /// Send remote-control button/key, e.g. HOME, BACK, UP, DOWN, ENTER.
+    Key { key: String },
+
+    /// Print resolved configuration without sensitive values.
+    Config,
+}
+
+#[derive(Debug, Args)]
+pub struct VolumeArgs {
+    #[command(subcommand)]
+    pub action: VolumeAction,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum VolumeAction {
+    Up,
+    Down,
+    Set { level: u8 },
+}
+
+#[derive(Debug, Args)]
+pub struct MuteArgs {
+    #[arg(value_enum, default_value = "toggle")]
+    pub state: MuteState,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum MuteState {
+    Toggle,
+    On,
+    Off,
+}
