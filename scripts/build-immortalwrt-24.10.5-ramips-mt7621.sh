@@ -29,6 +29,10 @@ cd "$SDK_DIR"
 ./scripts/feeds update packages
 ./scripts/feeds install rust
 
+# Fix Rust CI LLVM 404 in GitHub Actions
+sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
+grep -n 'download-ci-llvm' feeds/packages/lang/rust/Makefile
+
 rm -rf package/lgtvctl
 mkdir -p package/lgtvctl
 cp -a "$PROJECT_DIR/openwrt/package/lgtvctl/." package/lgtvctl/
