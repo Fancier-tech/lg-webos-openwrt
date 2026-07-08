@@ -172,3 +172,58 @@ lgtvctl --config /etc/lgtvctl.toml status
 curl -X POST http://127.0.0.1:8765/tv/volume/down
 curl -X POST http://127.0.0.1:8765/tv/on
 ```
+
+## GitHub Actions: build `.ipk` for ImmortalWrt 24.10.5 ramips/mt7621
+
+This repository contains a workflow that builds the OpenWrt/ImmortalWrt package without local WSL/Linux setup:
+
+```text
+.github/workflows/build-ipk.yml
+```
+
+Target router profile used by the workflow:
+
+```text
+ImmortalWrt 24.10.5
+DISTRIB_TARGET='ramips/mt7621'
+DISTRIB_ARCH='mipsel_24kc'
+```
+
+To run it manually:
+
+1. Push the latest commits to GitHub.
+2. Open the repository on GitHub.
+3. Go to **Actions**.
+4. Select **Build ImmortalWrt IPK**.
+5. Click **Run workflow**.
+6. After the job finishes, download the artifact named:
+
+```text
+lgtvctl-immortalwrt-24.10.5-ramips-mt7621-mipsel_24kc
+```
+
+It should contain a package like:
+
+```text
+lgtvctl_0.6.0-1_mipsel_24kc.ipk
+```
+
+Install on the router:
+
+```sh
+scp lgtvctl_*.ipk root@192.168.0.1:/tmp/
+ssh root@192.168.0.1
+opkg install /tmp/lgtvctl_*.ipk
+vi /etc/lgtvctl.toml
+/etc/init.d/lgtvctl enable
+/etc/init.d/lgtvctl start
+```
+
+Then test locally on the router:
+
+```sh
+lgtvctl --config /etc/lgtvctl.toml status
+curl -X POST http://127.0.0.1:8765/tv/volume/down
+curl -X POST http://127.0.0.1:8765/tv/off
+curl -X POST http://127.0.0.1:8765/tv/on
+```
