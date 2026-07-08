@@ -26,8 +26,9 @@ fi
 
 cd "$SDK_DIR"
 
-./scripts/feeds update packages
+./scripts/feeds update -a
 ./scripts/feeds install rust
+./scripts/feeds install openssl
 
 # Fix Rust CI LLVM 404 in GitHub Actions
 sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
