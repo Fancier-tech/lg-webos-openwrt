@@ -132,3 +132,43 @@ Config lookup order:
 
 Do not compile on the router. Build through OpenWrt SDK for the exact target/subtarget.
 The Rust code avoids OpenSSL and uses `rustls` for easier cross-compilation.
+
+## OpenWrt / ImmortalWrt target used by this project
+
+Test target from the router:
+
+```text
+DISTRIB_ID='ImmortalWrt'
+DISTRIB_RELEASE='24.10.5'
+DISTRIB_TARGET='ramips/mt7621'
+DISTRIB_ARCH='mipsel_24kc'
+```
+
+Build the `.ipk` on Linux/WSL, not on the router:
+
+```bash
+./scripts/build-immortalwrt-24.10.5-ramips-mt7621.sh
+```
+
+The script downloads the matching ImmortalWrt SDK, installs the Rust feed,
+and builds `lgtvctl` as an OpenWrt package.
+
+Install the resulting package on the router:
+
+```sh
+scp bin/packages/mipsel_24kc/base/lgtvctl_*.ipk root@192.168.1.1:/tmp/
+ssh root@192.168.1.1
+opkg install /tmp/lgtvctl_*.ipk
+vi /etc/lgtvctl.toml
+/etc/init.d/lgtvctl enable
+/etc/init.d/lgtvctl start
+logread -f | grep lgtvctl
+```
+
+Local checks on the router:
+
+```sh
+lgtvctl --config /etc/lgtvctl.toml status
+curl -X POST http://127.0.0.1:8765/tv/volume/down
+curl -X POST http://127.0.0.1:8765/tv/on
+```

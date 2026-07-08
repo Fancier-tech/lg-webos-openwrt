@@ -1,7 +1,9 @@
 use crate::{Config, LgtvctlError, Result};
 use futures_util::{SinkExt, StreamExt};
+#[cfg(feature = "tls-rustls")]
 use rustls::{ClientConfig, RootCertStore};
 use serde_json::{json, Value};
+#[cfg(feature = "tls-rustls")]
 use std::sync::Arc;
 use tokio::net::TcpStream;
 use tokio::time::timeout;
@@ -182,7 +184,7 @@ impl WebOsClient {
 
     pub async fn connect(&self) -> Result<(WebOsConnection, ProbeResult)> {
         let url = self.url()?;
-        let connector = build_tls_connector(self.config.verify_certificate);
+        let connector = build_tls_connector(self.config.verify_certificate)?;
         let connect_future = connect_async_tls_with_config(
             url.as_str(),
             None,
@@ -256,7 +258,7 @@ impl WebOsConnection {
 fn webos_manifest() -> Value {
     json!({
         "manifestVersion": 1,
-        "appVersion": "0.5.0",
+        "appVersion": "0.6.0",
         "appId": "com.fanciertech.lgtvctl",
         "vendorId": "com.fanciertech",
         "permissions": [
@@ -296,7 +298,8 @@ fn webos_manifest() -> Value {
     })
 }
 
-fn build_tls_connector(verify_certificate: bool) -> Connector {
+#[cfg(feature = "tls-rustls")]
+fn build_tls_connector(verify_certificate: bool) -> Result<Connector> {
     let mut root_store = RootCertStore::empty();
     root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
 
@@ -310,12 +313,32 @@ fn build_tls_connector(verify_certificate: bool) -> Connector {
             .set_certificate_verifier(Arc::new(NoCertificateVerification));
     }
 
-    Connector::Rustls(Arc::new(config))
+    Ok(Connector::Rustls(Arc::new(config)))
 }
 
+#[cfg(feature = "tls-native")]
+fn build_tls_connector(verify_certificate: bool) -> Result<Connector> {
+    let mut builder = native_tls::TlsConnector::builder();
+
+    if !verify_certificate {
+        builder.danger_accept_invalid_certs(true);
+        builder.danger_accept_invalid_hostnames(true);
+    }
+
+    builder
+        .build()
+        .map(Connector::NativeTls)
+        .map_err(|source| LgtvctlError::Protocol(format!("failed to build native TLS connector: {source}")))
+}
+
+#[cfg(all(feature = "tls-rustls", feature = "tls-native"))]
+compile_error!("features tls-rustls and tls-native are mutually exclusive");
+
+#[cfg(feature = "tls-rustls")]
 #[derive(Debug)]
 struct NoCertificateVerification;
 
+#[cfg(feature = "tls-rustls")]
 impl rustls::client::danger::ServerCertVerifier for NoCertificateVerification {
     fn verify_server_cert(
         &self,

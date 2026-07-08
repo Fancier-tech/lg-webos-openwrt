@@ -1,0 +1,21 @@
+# /etc/lgtvctl.toml
+# Local config for LG webOS TV control from OpenWrt.
+# After install, replace placeholders with your real TV IP, MAC and client_key.
+
+host = "192.168.0.116"
+port = 3001
+
+# Get this on the PC before installing to OpenWrt:
+#   lgtvctl --host 192.168.0.116 pair
+client_key = ""
+
+verify_certificate = false
+timeout_ms = 3000
+pair_timeout_ms = 60000
+
+# Required for `lgtvctl on` / HTTP POST /tv/on.
+mac = "AA:BB:CC:DD:EE:FF"
+wol_broadcast = "192.168.0.255"
+
+# On OpenWrt use 0.0.0.0 if other LAN devices should call the API.
+http_listen = "0.0.0.0:8765"

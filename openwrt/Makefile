@@ -1,13 +1,3 @@
-# Placeholder OpenWrt package Makefile.
-# Stage 1 keeps this as documentation. We will turn it into a real package file after
-# the binary works locally and the exact OpenWrt target/toolchain is known.
-
-include $(TOPDIR)/rules.mk
-
-PKG_NAME:=lgtvctl
-PKG_VERSION:=0.5.0
-PKG_RELEASE:=1
-
-include $(INCLUDE_DIR)/package.mk
-
-# Real Rust/OpenWrt packaging will be added in a later stage.
+# Kept only as a pointer for old checkouts.
+# The real OpenWrt package lives in openwrt/package/lgtvctl/Makefile.
+# Build it with scripts/build-immortalwrt-24.10.5-ramips-mt7621.sh from WSL/Linux.
